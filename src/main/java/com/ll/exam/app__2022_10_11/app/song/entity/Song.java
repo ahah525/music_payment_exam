@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 @Getter
 @Setter
 @SuperBuilder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // TODO :
 public class Song extends BaseEntity {
     private String subject;
     private String content;

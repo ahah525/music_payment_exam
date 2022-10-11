@@ -29,14 +29,14 @@ public class SongController {
     // 음원 업로드 폼
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String showWrite() {
+    public String showCreate() {
         return "song/create";
     }
 
     // 음원 업로드
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String write(@AuthenticationPrincipal MemberContext memberContext, @Valid SongForm songForm) {
+    public String create(@AuthenticationPrincipal MemberContext memberContext, @Valid SongForm songForm) {
         Member author = memberContext.getMember();
         Song song = songService.create(author, songForm.getSubject(), songForm.getContent());
 
