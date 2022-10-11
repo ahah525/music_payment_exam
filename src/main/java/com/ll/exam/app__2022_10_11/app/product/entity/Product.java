@@ -22,6 +22,7 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member author;              // 상품 소유자(song을 통해 확인할 수 있으므로 꼭 있어야하는 것은 아니지만 있으면 편함)
 
+    // TODO : 왜 ManyToOne 관계인가
     @ManyToOne(fetch = FetchType.LAZY)
     private Song song;                  // 음원 출처
 }
