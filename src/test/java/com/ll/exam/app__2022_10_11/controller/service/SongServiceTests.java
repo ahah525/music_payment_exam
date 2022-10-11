@@ -2,6 +2,8 @@ package com.ll.exam.app__2022_10_11.controller.service;
 
 import com.ll.exam.app__2022_10_11.app.member.entity.Member;
 import com.ll.exam.app__2022_10_11.app.member.repository.MemberRepository;
+import com.ll.exam.app__2022_10_11.app.song.entity.Song;
+import com.ll.exam.app__2022_10_11.app.song.service.SongService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
