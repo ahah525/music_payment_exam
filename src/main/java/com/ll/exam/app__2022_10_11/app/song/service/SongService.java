@@ -37,4 +37,21 @@ public class SongService {
         song.setSubject(subject);
         song.setContent(content);
     }
+
+    // 수정 권한 여부 체
+    public boolean actorCanModify(Member actor, Song song) {
+        return actor.getId().equals(song.getAuthor().getId());
+    }
+
+    // 삭제 권한 여부 체크
+    public boolean actorCanDelete(Member actor, Song song) {
+        return actorCanModify(actor, song);
+    }
+
+    // 상세페이지용 song 조회
+    public Optional<Song> findForPrintById(long id) {
+        Optional<Song> opSong = findById(id);
+
+        return opSong;
+    }
 }
