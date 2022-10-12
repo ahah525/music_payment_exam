@@ -3,6 +3,7 @@ package com.ll.exam.app__2022_10_11.app.order.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ll.exam.app__2022_10_11.app.member.entity.Member;
+import com.ll.exam.app__2022_10_11.app.member.service.MemberService;
 import com.ll.exam.app__2022_10_11.app.order.entity.Order;
 import com.ll.exam.app__2022_10_11.app.order.exception.OrderIdNotMatchedException;
 import com.ll.exam.app__2022_10_11.app.order.service.OrderService;
@@ -33,6 +34,7 @@ import java.util.Map;
 @RequestMapping("/order")
 public class OrderController {
     private final OrderService orderService;
+    private final MemberService memberService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;    // Ut
 
@@ -43,12 +45,14 @@ public class OrderController {
     public String showDetail(@AuthenticationPrincipal MemberContext memberContext, @PathVariable long id, Model model) {
         Order order = orderService.findForPrintById(id).orElse(null);
         Member actor = memberContext.getMember();
+        long restCash = memberService.getRestCash(actor);   // 보유 예치금
 
         if(orderService.actorCanSee(actor, order) == false) {
             throw new ActorCanNotSeeException();
         }
 
         model.addAttribute("order", order);
+        model.addAttribute("actorRestCash", restCash);
 
         return "/order/detail";
     }
