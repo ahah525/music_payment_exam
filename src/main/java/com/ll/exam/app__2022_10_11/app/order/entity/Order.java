@@ -29,12 +29,12 @@ public class Order extends BaseEntity {
         orderItems.add(orderItem);
     }
 
-    // 해당 주문의 총 결제 금액
+    // 해당 주문의 총 결제 금액 계산(실제 판매가의 총합)
     public int calculatePayPrice() {
         int payPrice = 0;
 
         for (OrderItem orderItem : orderItems) {
-            payPrice += orderItem.getPayPrice();
+            payPrice += orderItem.getSalePrice();
         }
 
         return payPrice;

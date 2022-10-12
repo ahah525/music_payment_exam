@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -86,5 +87,19 @@ public class OrderService {
         // 환불 처리
         order.setRefundDone();
         orderRepository.save(order);
+    }
+
+    public Optional<Order> findById(long id) {
+        return orderRepository.findById(id);
+    }
+
+    // 화면 표시용 주문 조회
+    public Optional<Order> findForPrintById(long id) {
+        return findById(id);
+    }
+
+    // 주문 조회 권한 체크
+    public boolean actorCanSee(Member actor, Order order) {
+        return actor.getId().equals(order.getBuyer().getId());
     }
 }
