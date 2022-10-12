@@ -1,16 +1,34 @@
 package com.ll.exam.app__2022_10_11.app.base.initData;
 
-import com.ll.exam.app__2022_10_11.app.cart.entity.CartItem;
 import com.ll.exam.app__2022_10_11.app.cart.service.CartService;
 import com.ll.exam.app__2022_10_11.app.member.entity.Member;
 import com.ll.exam.app__2022_10_11.app.member.service.MemberService;
+import com.ll.exam.app__2022_10_11.app.order.entity.Order;
+import com.ll.exam.app__2022_10_11.app.order.service.OrderService;
 import com.ll.exam.app__2022_10_11.app.product.entity.Product;
 import com.ll.exam.app__2022_10_11.app.product.service.ProductService;
 import com.ll.exam.app__2022_10_11.app.song.entity.Song;
 import com.ll.exam.app__2022_10_11.app.song.service.SongService;
 
+import java.util.Arrays;
+import java.util.List;
+
 public interface InitDataBefore {
-    default void before(MemberService memberService, SongService songService, ProductService productService, CartService cartService) {
+    default void before(MemberService memberService, SongService songService, ProductService productService, CartService cartService, OrderService orderService) {
+        class Helper {
+            public Order order(Member member, List<Product> products) {
+                for (int i = 0; i < products.size(); i++) {
+                    Product product = products.get(i);
+
+                    cartService.addItem(member, product);
+                }
+
+                return orderService.createFromCart(member);
+            }
+        }
+
+        Helper helper = new Helper();
+
         // 회원가입
         Member member1 = memberService.join("user1", "1234", "user1@test.com");
         Member member2 = memberService.join("user2", "1234", "user2@test.com");
@@ -32,12 +50,6 @@ public interface InitDataBefore {
         Product product4 = productService.create(song7, "바다", 4_900);
         Product product5 = productService.create(song8, "안녕", 5_900);
 
-        // 장바구니에 상품 담기
-        CartItem cartItem1 = cartService.addItem(member1, product1);
-        CartItem cartItem2 = cartService.addItem(member1, product2);
-        CartItem cartItem3 = cartService.addItem(member2, product3);
-        CartItem cartItem4 = cartService.addItem(member2, product4);
-
         // 예치금 변동 기록
         memberService.addCash(member1, 10_000, "충전__무통장입금");
         memberService.addCash(member1, 20_000, "충전__무통장입금");
@@ -45,5 +57,33 @@ public interface InitDataBefore {
         memberService.addCash(member1, 1_000_000, "충전__무통장입금");
 
         memberService.addCash(member2, 2_000_000, "충전__무통장입금");
+
+        // 1번 주문 : 결제완료
+        Order order1 = helper.order(member1, Arrays.asList(
+                        product1,
+                        product2
+                )
+        );
+
+        int order1PayPrice = order1.calculatePayPrice();
+        orderService.payByRestCashOnly(order1);
+
+        // 2번 주문 : 결제 후 환불
+        Order order2 = helper.order(member2, Arrays.asList(
+                        product3,
+                        product4
+                )
+        );
+
+        orderService.payByRestCashOnly(order2);
+
+        orderService.refund(order2);
+
+        // 3번 주문 : 결제 전
+        Order order3 = helper.order(member2, Arrays.asList(
+                        product1,
+                        product2
+                )
+        );
     }
 }

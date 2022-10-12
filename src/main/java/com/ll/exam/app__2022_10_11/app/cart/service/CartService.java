@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,5 +49,24 @@ public class CartService {
     // buyer, product 의 id로 CartItem 있는지 체크
     public boolean hasItem(Member buyer, Product product) {
         return cartItemRepository.existsByBuyerIdAndProductId(buyer.getId(), product.getId());
+    }
+
+    // buyer id로 CartItem 조회
+    public List<CartItem> getItemsByBuyer(Member buyer) {
+        return cartItemRepository.findAllByBuyerId(buyer.getId());
+    }
+
+    @Transactional
+    public void removeItem(CartItem cartItem) {
+        cartItemRepository.delete(cartItem);
+    }
+
+    @Transactional
+    public void removeItem(
+            Member buyer,
+            Long productId
+    ) {
+        Product product = new Product(productId);
+        removeItem(buyer, product);
     }
 }
