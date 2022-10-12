@@ -22,6 +22,7 @@ public class Member extends BaseEntity {
     private String password;
     private String email;
     private boolean emailVerified;
+    private long restCash;          // 예치금
 
     // name 은 username 값으로 사용
     public String getName() {
