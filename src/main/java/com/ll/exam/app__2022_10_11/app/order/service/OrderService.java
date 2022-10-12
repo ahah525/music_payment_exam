@@ -71,7 +71,7 @@ public class OrderService {
             throw new RuntimeException("예치금이 부족합니다.");
         }
         // 예치금 차감 처리
-        memberService.addCash(buyer, payPrice * -1, "주문결제__예치금결제");
+        memberService.addCash(buyer, payPrice * -1, "주문__%d__사용__예치금".formatted(order.getId()));
         // 결제 완료 처리
         order.setPaymentDone();
         orderRepository.save(order);
@@ -83,7 +83,7 @@ public class OrderService {
         int payPrice = order.getPayPrice();     // 결제 금액
 
         // 예치금 환불 처리
-        memberService.addCash(buyer, payPrice, "주문환불__예치금환불");
+        memberService.addCash(order.getBuyer(), payPrice, "주문__%d__환불__예치금".formatted(order.getId()));
 
         // 환불 처리
         order.setRefundDone();
@@ -104,15 +104,21 @@ public class OrderService {
         return actor.getId().equals(order.getBuyer().getId());
     }
 
-    // TossPayments 로 전액 결제
+    // TossPayments 결제(전액 결제 or 혼합 결제)
     @Transactional
-    public void payByTossPayments(Order order) {
-        Member buyer = order.getBuyer();        // 구매자
+    public void payByTossPayments(Order order, long useRestCash) {
+        Member buyer = order.getBuyer();              // 구매자
         int payPrice = order.calculatePayPrice();     // 결제 금액
+        long pgPayPrice = payPrice - useRestCash;     // 카드 결제 금액
 
-        // 예치금 차감 처리
-        memberService.addCash(buyer, payPrice, "주문결제충전__토스페이먼츠");
-        memberService.addCash(buyer, payPrice * -1, "주문결제__토스페이먼츠");
+        // 카드 결제 예치금 처리
+        memberService.addCash(buyer, pgPayPrice, "주문__%d__충전__토스페이먼츠".formatted(order.getId()));
+        memberService.addCash(buyer, pgPayPrice * -1, "주문__%d__사용__토스페이먼츠".formatted(order.getId()));
+
+        // 사용된 예치금 처리
+        if(useRestCash > 0) {
+            memberService.addCash(buyer, useRestCash * -1, "주문__%d__사용__예치금".formatted(order.getId()));
+        }
 
         // 결제 완료 처리
         order.setPaymentDone();

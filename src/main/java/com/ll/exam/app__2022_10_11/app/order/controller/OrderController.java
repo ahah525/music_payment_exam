@@ -7,6 +7,7 @@ import com.ll.exam.app__2022_10_11.app.member.service.MemberService;
 import com.ll.exam.app__2022_10_11.app.order.entity.Order;
 import com.ll.exam.app__2022_10_11.app.order.exception.ActorCanNotPayOrderException;
 import com.ll.exam.app__2022_10_11.app.order.exception.OrderIdNotMatchedException;
+import com.ll.exam.app__2022_10_11.app.order.exception.OrderNotEnoughRestCashException;
 import com.ll.exam.app__2022_10_11.app.order.service.OrderService;
 import com.ll.exam.app__2022_10_11.app.security.dto.MemberContext;
 import com.ll.exam.app__2022_10_11.app.song.exception.ActorCanNotSeeException;
@@ -95,7 +96,8 @@ public class OrderController {
             @RequestParam String paymentKey,
             @RequestParam String orderId,
             @RequestParam Long amount,
-            Model model
+            Model model,
+            @AuthenticationPrincipal MemberContext memberContext
     ) throws Exception {
 
         Order order = orderService.findById(id).orElse(null);
@@ -113,7 +115,15 @@ public class OrderController {
 
         Map<String, String> payloadMap = new HashMap<>();
         payloadMap.put("orderId", orderId);
-        payloadMap.put("amount", String.valueOf(order.calculatePayPrice()));    // 실제 조회한 주문 결제 금액
+        payloadMap.put("amount", String.valueOf(amount));
+
+        Member actor = memberContext.getMember();
+        long restCash = memberService.getRestCash(actor);           // 보유 예치금
+        long payPriceRestCash = order.calculatePayPrice() - amount; // 예치금 결제 금액 = 결제 금액 - pg 결제 금액
+        // 예치금 결제 금액 > 보유 예치금 이면, 예치금 부족 예외
+        if(payPriceRestCash > restCash) {
+            throw new OrderNotEnoughRestCashException();
+        }
 
         HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(payloadMap), headers);
 
@@ -122,7 +132,7 @@ public class OrderController {
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             // Toss Payments 결제 처리
-            orderService.payByTossPayments(order);
+            orderService.payByTossPayments(order, payPriceRestCash);
 
             return "redirect:/order/%d?msg=%s".formatted(order.getId(), Ut.url.encode("결제가 완료되었습니다."));
         } else {
