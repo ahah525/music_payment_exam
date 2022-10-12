@@ -52,6 +52,7 @@ public class OrderService {
         for(OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
+        order.makeName();
 
         orderRepository.save(order);
 
@@ -63,7 +64,7 @@ public class OrderService {
     public void payByRestCashOnly(Order order) {
         Member buyer = order.getBuyer();    // 구매자
         long restCash = buyer.getRestCash();    // 예치금 잔액
-        int payPrice = order.getPayPrice();     // 결제 금액
+        int payPrice = order.calculatePayPrice();     // 결제 금액
 
         // 예치금 잔액 < 결제 금액 이면, 결제 거절
         if(restCash < payPrice) {
@@ -101,5 +102,20 @@ public class OrderService {
     // 주문 조회 권한 체크
     public boolean actorCanSee(Member actor, Order order) {
         return actor.getId().equals(order.getBuyer().getId());
+    }
+
+    // TossPayments 로 전액 결제
+    @Transactional
+    public void payByTossPayments(Order order) {
+        Member buyer = order.getBuyer();        // 구매자
+        int payPrice = order.calculatePayPrice();     // 결제 금액
+
+        // 예치금 차감 처리
+        memberService.addCash(buyer, payPrice, "주문결제충전__토스페이먼츠");
+        memberService.addCash(buyer, payPrice * -1, "주문결제__토스페이먼츠");
+
+        // 결제 완료 처리
+        order.setPaymentDone();
+        orderRepository.save(order);
     }
 }

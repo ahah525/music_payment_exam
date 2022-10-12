@@ -20,6 +20,12 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member buyer;   // 구매자
 
+    private String name;        // 주문 이름
+
+    private boolean isPaid;     // 결제여부
+    private boolean isCanceled; // 취소여부
+    private boolean isRefunded; // 환불여부
+
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>(); // 주문 품목 리스트
@@ -45,6 +51,8 @@ public class Order extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             orderItem.setPaymentDone();
         }
+
+        isPaid = true;
     }
 
     // 환불 완료 처리
@@ -52,6 +60,8 @@ public class Order extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             orderItem.setRefundDone();
         }
+
+        isRefunded = true;
     }
 
     public int getPayPrice() {
@@ -63,14 +73,14 @@ public class Order extends BaseEntity {
         return payPrice;
     }
 
-    // 주문 이름
-    public String getName() {
+    // 주문 상품으로부터 주문 이름 생성
+    public void makeName() {
         String name = orderItems.get(0).getProduct().getSubject();
 
-        if(orderItems.size() > 1) {
+        if (orderItems.size() > 1) {
             name += " 외 %d곡".formatted(orderItems.size() - 1);
         }
 
-        return name;
+        this.name = name;
     }
 }
