@@ -20,20 +20,21 @@
         const tossPayments = TossPayments("test_ck_jZ61JOxRQVEAQP7NyggVW0X9bAqw");
 
         function payment() {
-            var method = "카드"; // "카드" 혹은 "가상계좌"
+            const method = "카드"; // "카드" 혹은 "가상계좌"
 
-            var paymentData = {
+            const paymentData = {
                 amount: orderPayPrice,
-                orderId: "order__" + orderId,
+                orderId: "order__" + orderId + "__" + (Math.random() + "").substring(2),
                 orderName,
                 customerName: buyerName,
-                successUrl: window.location.origin + "/success",
-                failUrl: window.location.origin + "/fail",
+                successUrl: window.location.origin + "/order/" + orderId + "/success",
+                failUrl: window.location.origin + "/order/" + orderId + "/fail"
             };
 
             tossPayments.requestPayment(method, paymentData);
         }
     </script>
+
 
     <section class="section section-write container mx-auto">
 
