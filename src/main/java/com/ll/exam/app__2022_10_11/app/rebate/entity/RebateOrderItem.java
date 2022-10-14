@@ -104,7 +104,7 @@ public class RebateOrderItem extends BaseEntity {
 
     // 예상 정산금액 계산
     public int calculateRebatePrice() {
-        if(isRebateAvailable() == false) {
+        if(refundPrice > 0) {
             return 0;
         }
         return payPrice - pgFee - wholesalePrice;
@@ -112,11 +112,17 @@ public class RebateOrderItem extends BaseEntity {
 
     // 정산 가능 여부
     public boolean isRebateAvailable() {
-        // 전액 환불시 정산 불가
-        if(refundPrice > 0) {
+        // 전액 환불건 or 정산 완료건은 정산 불가
+        if(refundPrice > 0 || rebateDate != null) {
             return false;
         }
         return true;
+    }
+
+    // 정산 완료 처리
+    public void setRebateDone(Long cashLogId) {
+        rebateDate = LocalDateTime.now();
+        this.rebateCashLog = new CashLog(cashLogId);
     }
 }
 
