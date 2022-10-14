@@ -51,7 +51,8 @@ public class RebateOrderItem extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @ToString.Exclude
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private CashLog rebateCashLog;  // 정산금액 지급 내역
+    private CashLog rebateCashLog;      // 정산금액 지급 내역
+    private LocalDateTime rebateDate;   // 정산금액 지급 일시
 
     // 상품
     private String productSubject;
@@ -59,12 +60,19 @@ public class RebateOrderItem extends BaseEntity {
     // 주문 품목
     private LocalDateTime orderItemCreateDate;
 
-    // 회원
+    // 구매자 회원
     @ManyToOne(fetch = LAZY)
     @ToString.Exclude
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member buyer;       // 구매자
     private String buyerName;   // 구매자명
+
+    // 판매자 회원
+    @ManyToOne(fetch = LAZY)
+    @ToString.Exclude
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Member seller;       // 판매자
+    private String sellerName;   // 판매자명
 
     public RebateOrderItem(OrderItem orderItem) {
         this.orderItem = orderItem;
@@ -85,9 +93,30 @@ public class RebateOrderItem extends BaseEntity {
         // 주문품목 추가데이터
         orderItemCreateDate = orderItem.getCreateDate();
 
-        // 회원
+        // 구매자 추가데이터
         buyer = orderItem.getOrder().getBuyer();
         buyerName = orderItem.getOrder().getBuyer().getName();
+
+        // 판매자 추가데이터
+        seller = orderItem.getProduct().getAuthor();
+        sellerName = orderItem.getProduct().getAuthor().getName();
+    }
+
+    // 예상 정산금액 계산
+    public int calculateRebatePrice() {
+        if(isRebateAvailable() == false) {
+            return 0;
+        }
+        return payPrice - pgFee - wholesalePrice;
+    }
+
+    // 정산 가능 여부
+    public boolean isRebateAvailable() {
+        // 전액 환불시 정산 불가
+        if(refundPrice > 0) {
+            return false;
+        }
+        return true;
     }
 }
 

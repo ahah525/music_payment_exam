@@ -134,7 +134,7 @@ public class OrderService {
     }
 
     // 해당 날짜 범위의 OrderItem 조회
-    public List<OrderItem> findAllByPayDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
-        return orderItemRepository.findAllByPayDateBetween(fromDate, toDate);
+    public List<OrderItem> findAllByPayDateBetweenOrderByIdAsc(LocalDateTime fromDate, LocalDateTime toDate) {
+        return orderItemRepository.findAllByPayDateBetweenOrderByIdAsc(fromDate, toDate);
     }
 }
