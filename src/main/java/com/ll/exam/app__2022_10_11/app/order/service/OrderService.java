@@ -6,12 +6,14 @@ import com.ll.exam.app__2022_10_11.app.member.entity.Member;
 import com.ll.exam.app__2022_10_11.app.member.service.MemberService;
 import com.ll.exam.app__2022_10_11.app.order.entity.Order;
 import com.ll.exam.app__2022_10_11.app.order.entity.OrderItem;
+import com.ll.exam.app__2022_10_11.app.order.repository.OrderItemRepository;
 import com.ll.exam.app__2022_10_11.app.order.repository.OrderRepository;
 import com.ll.exam.app__2022_10_11.app.product.entity.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,7 @@ public class OrderService {
     private final CartService cartService;
     private final MemberService memberService;
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     // 장바구니로부터 주문 생성
     @Transactional
@@ -127,5 +130,10 @@ public class OrderService {
 
     public boolean actorCanPayment(Member actor, Order order) {
         return actorCanSee(actor, order);
+    }
+
+    // 해당 날짜 범위의 OrderItem 조회
+    public List<OrderItem> findAllByPayDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
+        return orderItemRepository.findAllByPayDateBetween(fromDate, toDate);
     }
 }
