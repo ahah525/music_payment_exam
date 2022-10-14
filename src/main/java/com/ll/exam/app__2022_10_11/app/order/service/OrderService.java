@@ -81,6 +81,7 @@ public class OrderService {
     }
 
     // 전액 환불
+    @Transactional
     public void refund(Order order) {
         Member buyer = order.getBuyer();    // 구매자
         int payPrice = order.getPayPrice();     // 결제 금액
