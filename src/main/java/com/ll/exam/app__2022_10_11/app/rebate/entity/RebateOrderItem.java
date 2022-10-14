@@ -1,6 +1,8 @@
 package com.ll.exam.app__2022_10_11.app.rebate.entity;
 
 import com.ll.exam.app__2022_10_11.app.base.entity.BaseEntity;
+import com.ll.exam.app__2022_10_11.app.cash.entity.CashLog;
+import com.ll.exam.app__2022_10_11.app.member.entity.Member;
 import com.ll.exam.app__2022_10_11.app.order.entity.Order;
 import com.ll.exam.app__2022_10_11.app.order.entity.OrderItem;
 import com.ll.exam.app__2022_10_11.app.product.entity.Product;
@@ -46,11 +48,23 @@ public class RebateOrderItem extends BaseEntity {
     private boolean isPaid; // 결제여부
     private LocalDateTime payDate; // 결제날짜
 
+    @ManyToOne(fetch = LAZY)
+    @ToString.Exclude
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private CashLog rebateCashLog;  // 정산금액 지급 내역
+
     // 상품
     private String productSubject;
 
-    // 주문품목
+    // 주문 품목
     private LocalDateTime orderItemCreateDate;
+
+    // 회원
+    @ManyToOne(fetch = LAZY)
+    @ToString.Exclude
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Member buyer;       // 구매자
+    private String buyerName;   // 구매자명
 
     public RebateOrderItem(OrderItem orderItem) {
         this.orderItem = orderItem;
@@ -70,6 +84,10 @@ public class RebateOrderItem extends BaseEntity {
 
         // 주문품목 추가데이터
         orderItemCreateDate = orderItem.getCreateDate();
+
+        // 회원
+        buyer = orderItem.getOrder().getBuyer();
+        buyerName = orderItem.getOrder().getBuyer().getName();
     }
 }
 
