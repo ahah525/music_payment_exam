@@ -18,7 +18,7 @@ public class RebateService {
     private final OrderService orderService;
     private final RebateOrderItemRepository rebateOrderItemRepository;
 
-    public void makeDate(String yearMonth) {
+    public void makeData(String yearMonth) {
         // 날짜 범위 구하기
         int monthEndDay = Ut.date.getEndDayOf(yearMonth);
 
