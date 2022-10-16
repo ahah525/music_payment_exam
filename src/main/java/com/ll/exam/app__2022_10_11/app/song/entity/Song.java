@@ -19,4 +19,9 @@ public class Song extends BaseEntity {
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member author;
+
+    // 음원 이미지 자동생성을 위한 jdenticon
+    public String getJdenticon() {
+        return "song__" + getId();
+    }
 }
