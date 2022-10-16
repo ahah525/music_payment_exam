@@ -25,4 +25,8 @@ public class CartItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;// 상품
+
+    public CartItem(long id) {
+        super(id);
+    }
 }

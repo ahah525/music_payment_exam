@@ -150,4 +150,16 @@ public class OrderController {
         return "order/fail";
     }
     // Toss Payments 끝
+
+
+    // 상품 주문
+    @PostMapping("/makeOrder")
+    @PreAuthorize("isAuthenticated()")
+    public String makeOrder(@AuthenticationPrincipal MemberContext memberContext) {
+        Member buyer = memberContext.getMember();
+        Order order = orderService.createFromCart(buyer);
+        String redirect = "redirect:/order/%d".formatted(order.getId()) + "?msg=" + Ut.url.encode("%d번 주문이 생성되었습니다.".formatted(order.getId()));
+
+        return redirect;
+    }
 }
