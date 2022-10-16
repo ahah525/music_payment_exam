@@ -85,5 +85,13 @@ public interface InitDataBefore {
                         product2
                 )
         );
+
+        // 장바구니 아이템 추가
+        cartService.addItem(member1, product1);
+        cartService.addItem(member1, product2);
+        cartService.addItem(member1, product3);
+
+        cartService.addItem(member2, product4);
+        cartService.addItem(member2, product5);
     }
 }

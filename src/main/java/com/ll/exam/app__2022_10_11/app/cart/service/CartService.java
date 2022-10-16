@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +69,14 @@ public class CartService {
     ) {
         Product product = new Product(productId);
         removeItem(buyer, product);
+    }
+
+    public Optional<CartItem> findItemById(long id) {
+        return cartItemRepository.findById(id);
+    }
+
+    // 삭제 권한있는지 검증
+    public boolean actorCanDelete(Member buyer, CartItem cartItem) {
+        return buyer.getId().equals(cartItem.getBuyer().getId());
     }
 }
